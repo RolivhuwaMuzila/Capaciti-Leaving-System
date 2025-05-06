@@ -12,7 +12,7 @@ const RequestLeave = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Retrieve existing leave requests from localStorage
+
     const leaveRequests = JSON.parse(localStorage.getItem('leaveRequests')) || [];
     const newRequest = {
       id: Date.now(),
@@ -23,12 +23,14 @@ const RequestLeave = () => {
       reason,
       dateFrom,
       dateUntil,
-      status: 'Pending'
+      status: 'Pending',
     };
+
     leaveRequests.push(newRequest);
     localStorage.setItem('leaveRequests', JSON.stringify(leaveRequests));
-    setMessage('Leave request submitted successfully!');
-    // Reset form fields
+    setMessage('✅ Your leave request has been submitted successfully!');
+
+    // Reset form
     setLeaveType('Sick Leave');
     setReason('');
     setDateFrom('');
@@ -38,57 +40,126 @@ const RequestLeave = () => {
   return (
     <div>
       <NavBar />
-      <div className="container">
-        <h2>Request Leave</h2>
-        {message && <p style={{ color: 'green' }}>{message}</p>}
-        <form onSubmit={handleSubmit}>
-          <p>
-            <strong>Name:</strong> {user.name} {user.surname}
-          </p>
-          <label>
-            Leave Type:
-            <select value={leaveType} onChange={(e) => setLeaveType(e.target.value)}>
+      <div style={styles.container}>
+        <h2 style={styles.heading}>📝 Submit a Leave Request</h2>
+        {message && <p style={styles.successMessage}>{message}</p>}
+
+        <form onSubmit={handleSubmit} style={styles.form}>
+          <div style={styles.field}>
+            <label style={styles.label}>👤 Employee:</label>
+            <span style={styles.info}>{user.name} {user.surname}</span>
+          </div>
+
+          <div style={styles.field}>
+            <label style={styles.label}>🏷️ Leave Type:</label>
+            <select
+              value={leaveType}
+              onChange={(e) => setLeaveType(e.target.value)}
+              style={styles.input}
+              required
+            >
               <option value="Sick Leave">Sick Leave</option>
               <option value="Family Leave">Family Leave</option>
               <option value="Vacation">Vacation</option>
               <option value="Other">Other</option>
             </select>
-          </label>
-          <br />
-          <label>
-            Date From:
+          </div>
+
+          <div style={styles.field}>
+            <label style={styles.label}>📅 From:</label>
             <input
               type="date"
               value={dateFrom}
               onChange={(e) => setDateFrom(e.target.value)}
+              style={styles.input}
               required
             />
-          </label>
-          <br />
-          <label>
-            Date Until:
+          </div>
+
+          <div style={styles.field}>
+            <label style={styles.label}>📅 Until:</label>
             <input
               type="date"
               value={dateUntil}
               onChange={(e) => setDateUntil(e.target.value)}
+              style={styles.input}
               required
             />
-          </label>
-          <br />
-          <label>
-            Reason:
+          </div>
+
+          <div style={styles.field}>
+            <label style={styles.label}>📝 Reason:</label>
             <textarea
               value={reason}
               onChange={(e) => setReason(e.target.value)}
+              rows="4"
+              placeholder="Briefly explain why you need time off..."
+              style={{ ...styles.input, resize: 'vertical' }}
               required
             />
-          </label>
-          <br />
-          <button type="submit">Submit Leave Request</button>
+          </div>
+
+          <button type="submit" style={styles.button}>🚀 Submit Request</button>
         </form>
       </div>
     </div>
   );
 };
 
+const styles = {
+  container: {
+    maxWidth: '600px',
+    margin: '2rem auto',
+    padding: '2rem',
+    background: '#f9f9f9',
+    borderRadius: '10px',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+  },
+  heading: {
+    textAlign: 'center',
+    marginBottom: '1.5rem',
+    color: '#333',
+  },
+  successMessage: {
+    color: 'green',
+    textAlign: 'center',
+    fontWeight: 'bold',
+    marginBottom: '1rem',
+  },
+  form: {
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  field: {
+    marginBottom: '1rem',
+  },
+  label: {
+    display: 'block',
+    fontWeight: '600',
+    marginBottom: '0.5rem',
+  },
+  input: {
+    width: '100%',
+    padding: '0.5rem',
+    borderRadius: '6px',
+    border: '1px solid #ccc',
+    fontSize: '1rem',
+  },
+  info: {
+    fontSize: '1rem',
+    color: '#444',
+  },
+  button: {
+    marginTop: '1rem',
+    padding: '0.75rem',
+    backgroundColor: '#a10d2f',
+    color: 'white',
+    border: 'none',
+    borderRadius: '6px',
+    fontSize: '1rem',
+    cursor: 'pointer',
+  },
+};
+
 export default RequestLeave;
+
