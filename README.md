@@ -45,7 +45,7 @@ Welcome to the **Capaciti Leave Tracking System**! This web-based application he
 ## 🌍 Deployment Link
 
 You can view the live version of the Capaciti Leave Tracking System at the following link:  
-[(https://capaciti-leaving-system.onrender.com)] ✨
+[https://capaciti-leaving-system.onrender.com] ✨
 
 ## 📑 How to Use
 
