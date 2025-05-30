@@ -1,159 +1,252 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import NavBar from './NavBar';
 import { AuthContext } from '../context/AuthContext';
-import logo from '../assets/uvu africa.png'; // Ensure this path is correct
+
+// Dynamic brand color
+const brandRed = '#a10d2f';
+
+// Helper: typewriter effect for welcome messages
+const useTypewriter = (texts, speed = 120, pause = 1500) => {
+  const [display, setDisplay] = useState('');
+  const [textIndex, setTextIndex] = useState(0);
+  const [charIndex, setCharIndex] = useState(0);
+  const [deleting, setDeleting] = useState(false);
+
+  useEffect(() => {
+    if (!texts.length) return;
+
+    let timeout;
+
+    if (!deleting && charIndex <= texts[textIndex].length) {
+      timeout = setTimeout(() => {
+        setDisplay(texts[textIndex].substring(0, charIndex));
+        setCharIndex(charIndex + 1);
+      }, speed);
+    } else if (deleting && charIndex >= 0) {
+      timeout = setTimeout(() => {
+        setDisplay(texts[textIndex].substring(0, charIndex));
+        setCharIndex(charIndex - 1);
+      }, speed / 2);
+    } else if (charIndex === texts[textIndex].length + 1) {
+      timeout = setTimeout(() => setDeleting(true), pause);
+    } else if (charIndex === -1) {
+      setDeleting(false);
+      setTextIndex((textIndex + 1) % texts.length);
+      setCharIndex(0);
+    }
+
+    return () => clearTimeout(timeout);
+  }, [charIndex, deleting, textIndex, texts, speed, pause]);
+
+  return display;
+};
 
 const Home = () => {
   const { user } = useContext(AuthContext);
+  const [hovered, setHovered] = useState({ request: false, status: false });
+
+  const welcomeMessages = user
+    ? [
+        `Hello, ${user.name}!`,
+        'Ready to manage your leave effortlessly?',
+        'Let’s get started!',
+      ]
+    : [
+        'Welcome to Capaciti Leave Tracking!',
+        'Powered by UVU Africa',
+        'Please login to begin your journey.',
+      ];
+
+  const typedWelcome = useTypewriter(welcomeMessages);
+
+  // Animated pulsing circle for background
+  const PulseCircle = () => {
+    const [scale, setScale] = useState(1);
+
+    useEffect(() => {
+      const interval = setInterval(() => {
+        setScale((prev) => (prev >= 1.15 ? 1 : prev + 0.01));
+      }, 25);
+      return () => clearInterval(interval);
+    }, []);
+
+    return (
+      <svg
+        aria-hidden="true"
+        style={{
+          position: 'absolute',
+          top: '15%',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 0,
+          pointerEvents: 'none',
+          width: 250,
+          height: 250,
+        }}
+        viewBox="0 0 200 200"
+      >
+        <circle
+          cx="100"
+          cy="100"
+          r="80"
+          fill={brandRed}
+          opacity="0.08"
+          style={{ transformOrigin: 'center', transform: `scale(${scale})` }}
+        />
+      </svg>
+    );
+  };
+
+  const buttonStyle = (hover) => ({
+    backgroundColor: hover ? '#7a071c' : brandRed,
+    color: '#fff',
+    padding: '0.85rem 2.2rem',
+    borderRadius: '10px',
+    textDecoration: 'none',
+    fontWeight: '700',
+    fontSize: '1.1rem',
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+    transform: hover ? 'scale(1.1)' : 'scale(1)',
+    boxShadow: hover ? '0 6px 18px rgba(161, 13, 47, 0.4)' : 'none',
+    display: 'inline-block',
+    userSelect: 'none',
+  });
 
   return (
-    <div>
+    <main style={styles.container}>
       <NavBar />
-
-      {/* Hero Section */}
       <section style={styles.hero}>
-        <h1 style={styles.title}>Welcome to Capaciti Leave Tracking</h1>
-        <p style={styles.subtitle}>
-          Powered by <strong>UVU Africa</strong>, making your leave process seamless and hassle-free.<br />
-          {user?.name ? `Hello, ${user.name}! Ready to manage your leave effortlessly?` : 'Login to get started!'}
+        <PulseCircle />
+        <h1
+          style={styles.heading}
+          aria-live="polite"
+          aria-atomic="true"
+          aria-relevant="text"
+        >
+          {typedWelcome}
+          <span style={styles.cursor}>|</span>
+        </h1>
+
+        <p style={styles.description}>
+          Powered by <strong>UVU Africa</strong>, making your leave process seamless and hassle-free.
         </p>
-        <div style={styles.buttonGroup}>
-          <Link to="/request-leave" style={styles.button}>📝 Request Leave</Link>
-          <Link to="/leave-status" style={styles.button}>📍 Track Leave Status</Link>
+
+        <div style={styles.buttonContainer}>
+          <Link
+            to="/request-leave"
+            style={buttonStyle(hovered.request)}
+            onMouseEnter={() => setHovered((prev) => ({ ...prev, request: true }))}
+            onMouseLeave={() => setHovered((prev) => ({ ...prev, request: false }))}
+            aria-label="Apply for leave"
+          >
+            ✍️ Apply for Leave
+          </Link>
+
+          <Link
+            to="/leave-status"
+            style={buttonStyle(hovered.status)}
+            onMouseEnter={() => setHovered((prev) => ({ ...prev, status: true }))}
+            onMouseLeave={() => setHovered((prev) => ({ ...prev, status: false }))}
+            aria-label="View leave status"
+          >
+            📊 View Leave Status
+          </Link>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section style={styles.features}>
-        <h2 style={styles.sectionTitle}>✨ Why Choose Capaciti Leave System?</h2>
-        <div style={styles.cardContainer}>
-          <div style={styles.card}>
-            <h3 style={styles.cardTitle}>Easy Leave Requests</h3>
-            <p style={styles.cardDescription}>Submit your leave requests in just a few clicks, no paperwork needed!</p>
-          </div>
-          <div style={styles.card}>
-            <h3 style={styles.cardTitle}>Real-Time Tracking</h3>
-            <p style={styles.cardDescription}>Monitor your leave status in real-time, anywhere, anytime.</p>
-          </div>
-          <div style={styles.card}>
-            <h3 style={styles.cardTitle}>Transparent Communication</h3>
-            <p style={styles.cardDescription}>Stay informed with clear communication between you and your manager.</p>
-          </div>
-          <div style={styles.card}>
-            <h3 style={styles.cardTitle}>Innovative by UVU Africa</h3>
-            <p style={styles.cardDescription}>We bring the power of digital transformation to make your leave process smooth and easy.</p>
-          </div>
+      <footer style={styles.footer}>
+        <p>© {new Date().getFullYear()} Capaciti Leave Tracker • UVU Africa</p>
+        <div style={styles.socials}>
+          <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" style={styles.socialLink} aria-label="Facebook">📘</a>
+          <a href="mailto:support@capaciti.org" style={styles.socialLink} aria-label="Email support">📧</a>
+          <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" style={styles.socialLink} aria-label="Instagram">📷</a>
+          <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" style={styles.socialLink} aria-label="LinkedIn">💼</a>
         </div>
-      </section>
-
-      {/* Testimonial Section */}
-      <section style={styles.testimonial}>
-        <h2 style={styles.sectionTitle}>💬 What Our Users Say</h2>
-        <div style={styles.testimonialCard}>
-          <blockquote style={styles.quote}>
-            "Capaciti’s system is a game-changer! It’s quick, efficient, and saves me so much time. I can focus on what matters most." <br />
-            <cite>— Thandi M., Team Lead</cite>
-          </blockquote>
-        </div>
-      </section>
-    </div>
+      </footer>
+    </main>
   );
 };
 
-const absaRed = '#a10d2f';
-
 const styles = {
-  hero: {
-    textAlign: 'center',
-    padding: '3rem 1rem',
-    backgroundColor: '#fff4f4',
-  },
-  logo: {
-    height: '70px',
-    marginBottom: '1rem',
-  },
-  title: {
-    fontSize: '2.5rem',
-    color: absaRed,
-    marginBottom: '0.5rem',
-    fontWeight: '700',
-  },
-  subtitle: {
-    fontSize: '1.25rem',
-    color: '#2c3e50',
-    marginBottom: '1.5rem',
-  },
-  buttonGroup: {
+  container: {
+    minHeight: '100vh',
     display: 'flex',
-    justifyContent: 'center',
-    flexWrap: 'wrap',
-    gap: '1rem',
+    flexDirection: 'column',
   },
-  button: {
-    backgroundColor: absaRed,
-    color: '#ffffff',
-    padding: '0.75rem 1.5rem',
-    borderRadius: '8px',
-    textDecoration: 'none',
+  hero: {
+    backgroundColor: '#fff0f0',
+    flex: 1,
+    padding: '5rem 2rem 4rem',
+    textAlign: 'center',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  heading: {
+    fontSize: '3rem',
+    fontWeight: '900',
+    color: brandRed,
+    marginBottom: '1rem',
+    zIndex: 2,
+    minHeight: '4.5rem',
+    fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
+  },
+  cursor: {
+    color: brandRed,
+    fontWeight: '900',
+    animation: 'blink 1s step-start infinite',
+  },
+  description: {
+    fontSize: '1.3rem',
+    maxWidth: '600px',
+    color: '#333',
+    marginBottom: '3rem',
+    zIndex: 2,
+    fontWeight: '500',
+  },
+  buttonContainer: {
+    display: 'flex',
+    gap: '1.5rem',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    zIndex: 2,
+  },
+  footer: {
+    backgroundColor: brandRed,
+    color: '#fff',
+    padding: '1.5rem 2rem',
+    textAlign: 'center',
     fontWeight: '600',
     fontSize: '1rem',
-    transition: 'background 0.3s ease',
   },
-  features: {
-    padding: '2.5rem 1rem',
-    backgroundColor: '#ffffff',
-    textAlign: 'center',
+  socials: {
+    marginTop: '0.7rem',
+    display: 'flex',
+    justifyContent: 'center',
+    gap: '1.3rem',
   },
-  sectionTitle: {
-    fontSize: '1.8rem',
-    color: absaRed,
-    marginBottom: '1.2rem',
-  },
-  cardContainer: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-    gap: '2rem',
-    padding: '0 1rem',
-  },
-  card: {
-    backgroundColor: '#f9f9f9',
-    padding: '1.5rem',
-    borderRadius: '10px',
-    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-    textAlign: 'center',
-  },
-  cardTitle: {
-    fontSize: '1.4rem',
-    color: absaRed,
-    fontWeight: '700',
-    marginBottom: '0.8rem',
-  },
-  cardDescription: {
-    color: '#555',
-    fontSize: '1rem',
-    lineHeight: '1.5',
-  },
-  testimonial: {
-    padding: '2.5rem 1rem',
-    backgroundColor: '#f7f7f7',
-    textAlign: 'center',
-  },
-  testimonialCard: {
-    backgroundColor: '#fff',
-    padding: '2rem',
-    borderRadius: '10px',
-    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-    maxWidth: '700px',
-    margin: '0 auto',
-  },
-  quote: {
-    fontStyle: 'italic',
-    color: '#555',
-    fontSize: '1.1rem',
-    lineHeight: '1.8',
+  socialLink: {
+    fontSize: '1.6rem',
+    color: '#fff',
+    textDecoration: 'none',
+    transition: 'transform 0.25s ease',
+    userSelect: 'none',
   },
 };
 
-export default Home;
+// Adding blink keyframes for cursor effect in global style
+const styleSheet = document.styleSheets[0];
+const keyframes =
+  `@keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+  }`;
 
+if (styleSheet && styleSheet.insertRule) {
+  styleSheet.insertRule(keyframes, styleSheet.cssRules.length);
+}
+
+export default Home;

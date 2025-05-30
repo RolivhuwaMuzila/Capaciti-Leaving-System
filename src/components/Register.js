@@ -11,7 +11,7 @@ const Register = () => {
     password: '',
     name: '',
     surname: '',
-    role: 'Employee'  // default role
+    role: 'Employee'
   });
   const [error, setError] = useState('');
 
@@ -19,8 +19,22 @@ const Register = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const validatePassword = (password) => {
+    // Password must contain: 1 uppercase, 1 lowercase, 1 number, 1 special char (*, _, &, @, #), and be at least 8 characters
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[*_&@#])[A-Za-z\d*_&@#]{8,}$/;
+    return passwordRegex.test(password);
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    if (!validatePassword(formData.password)) {
+      setError(
+        'Password must be at least 8 characters long and include one uppercase letter, one lowercase letter, one number, and one special character (*, _, &, @, #).'
+      );
+      return;
+    }
+
     const result = register(formData);
     if (result.success) {
       navigate('/login');
@@ -53,6 +67,9 @@ const Register = () => {
             required
             style={styles.input}
           />
+          <p style={styles.passwordRequirements}>
+            Password must be at least 8 characters long, include one uppercase letter, one lowercase letter, one number, and one special character (*, _, &, @, #).
+          </p>
           <input
             type="text"
             name="name"
@@ -140,13 +157,17 @@ const styles = {
     cursor: 'pointer',
     transition: 'background 0.3s',
   },
-  buttonHover: {
-    backgroundColor: '#e74c3c',
-  },
   error: {
     color: 'red',
     fontSize: '0.9rem',
     marginBottom: '1rem',
+  },
+  passwordRequirements: {
+    fontSize: '0.9rem',
+    color: '#555',
+    marginBottom: '1rem',
+    textAlign: 'left',
+    marginTop: '-0.5rem',
   },
   loginText: {
     fontSize: '1rem',
@@ -160,3 +181,4 @@ const styles = {
 };
 
 export default Register;
+

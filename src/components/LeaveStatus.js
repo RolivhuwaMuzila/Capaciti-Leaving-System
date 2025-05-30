@@ -6,11 +6,43 @@ const LeaveStatus = () => {
   const { user } = useContext(AuthContext);
   const [myLeaves, setMyLeaves] = useState([]);
 
+  const leaveAllocations = {
+    "Sick Leave": 20,
+    "Study Leave": 5,
+    "Family Responsibility": 5,
+    "Annual Leave": 20,
+    "Unpaid Leave": null, // No fixed limit
+  };
+
   useEffect(() => {
     const requests = JSON.parse(localStorage.getItem('leaveRequests')) || [];
     const filtered = requests.filter(req => req.username === user.username);
     setMyLeaves(filtered);
   }, [user.username]);
+
+  // 🔄 Helper to calculate leave days
+  const calculateDays = (from, until) => {
+    const fromDate = new Date(from);
+    const untilDate = new Date(until);
+    const timeDiff = untilDate.getTime() - fromDate.getTime();
+    return Math.floor(timeDiff / (1000 * 3600 * 24)) + 1;
+  };
+
+  // 🧮 Helper to compute balance for a leave type
+  const getRemainingForType = (type) => {
+    const total = leaveAllocations[type];
+    if (total === null) return 'Unlimited';
+
+    const approvedLeaves = myLeaves.filter(
+      (req) => req.leaveType === type && req.status.toLowerCase() === 'approved'
+    );
+
+    const usedDays = approvedLeaves.reduce((sum, req) => {
+      return sum + calculateDays(req.dateFrom, req.dateUntil);
+    }, 0);
+
+    return `${Math.max(total - usedDays, 0)} days left`;
+  };
 
   return (
     <div>
@@ -30,6 +62,7 @@ const LeaveStatus = () => {
                 <th>📝 Reason</th>
                 <th>⏳ Status</th>
                 <th>👨‍💼 Manager</th>
+                <th>📊 Balance Left</th> {/* 🆕 new column */}
               </tr>
             </thead>
             <tbody>
@@ -43,6 +76,13 @@ const LeaveStatus = () => {
                     {req.status}
                   </td>
                   <td>{req.managerName || 'Pending Assignment'}</td>
+                  <td>
+                    {req.status.toLowerCase() === 'approved' && leaveAllocations[req.leaveType] !== null
+                      ? getRemainingForType(req.leaveType)
+                      : leaveAllocations[req.leaveType] === null
+                        ? 'Unlimited'
+                        : '--'}
+                  </td>
                 </tr>
               ))}
             </tbody>

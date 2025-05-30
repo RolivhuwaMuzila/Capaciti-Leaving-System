@@ -4,10 +4,11 @@ import { AuthContext } from '../context/AuthContext';
 
 const RequestLeave = () => {
   const { user } = useContext(AuthContext);
-  const [leaveType, setLeaveType] = useState('Sick Leave');
+  const [leaveType, setLeaveType] = useState('');
   const [reason, setReason] = useState('');
   const [dateFrom, setDateFrom] = useState('');
   const [dateUntil, setDateUntil] = useState('');
+  const [documentLink, setDocumentLink] = useState('');
   const [message, setMessage] = useState('');
 
   const handleSubmit = (e) => {
@@ -23,6 +24,7 @@ const RequestLeave = () => {
       reason,
       dateFrom,
       dateUntil,
+      documentLink,
       status: 'Pending',
     };
 
@@ -31,10 +33,11 @@ const RequestLeave = () => {
     setMessage('✅ Your leave request has been submitted successfully!');
 
     // Reset form
-    setLeaveType('Sick Leave');
+    setLeaveType('');
     setReason('');
     setDateFrom('');
     setDateUntil('');
+    setDocumentLink('');
   };
 
   return (
@@ -58,9 +61,12 @@ const RequestLeave = () => {
               style={styles.input}
               required
             >
+              <option value="" disabled>-- Select Leave Type --</option>
               <option value="Sick Leave">Sick Leave</option>
-              <option value="Family Leave">Family Leave</option>
-              <option value="Vacation">Vacation</option>
+              <option value="Study Leave">Study Leave</option>
+              <option value="Family Responsibility">Family Responsibility</option>
+              <option value="Annual Leave">Annual Leave</option>
+              <option value="Unpaid Leave">Unpaid Leave</option>
               <option value="Other">Other</option>
             </select>
           </div>
@@ -96,6 +102,17 @@ const RequestLeave = () => {
               placeholder="Briefly explain why you need time off..."
               style={{ ...styles.input, resize: 'vertical' }}
               required
+            />
+          </div>
+
+          <div style={styles.field}>
+            <label style={styles.label}>📎 Document Link (e.g., Doctor's Note):</label>
+            <input
+              type="url"
+              value={documentLink}
+              onChange={(e) => setDocumentLink(e.target.value)}
+              placeholder="Paste link to your document here"
+              style={styles.input}
             />
           </div>
 
@@ -162,4 +179,5 @@ const styles = {
 };
 
 export default RequestLeave;
+
 

@@ -4,37 +4,37 @@ import { AuthContext } from '../context/AuthContext';
 
 const ManagerDashboard = () => {
   const [leaveRequests, setLeaveRequests] = useState([]);
-  const { user } = useContext(AuthContext); // Manager info
+  const [declineReason, setDeclineReason] = useState({});
+  const { user } = useContext(AuthContext);
 
   useEffect(() => {
     const requests = JSON.parse(localStorage.getItem('leaveRequests')) || [];
     setLeaveRequests(requests);
   }, []);
 
-  const updateRequestStatus = (id, newStatus) => {
+  const updateRequestStatus = (id, newStatus, reason = '') => {
     const updatedRequests = leaveRequests.map((req) => {
       if (req.id === id) {
         return {
           ...req,
           status: newStatus,
           managerName: `${user.name} ${user.surname}`,
+          declineReason: newStatus === 'Declined' ? reason : '',
         };
       }
       return req;
     });
     setLeaveRequests(updatedRequests);
     localStorage.setItem('leaveRequests', JSON.stringify(updatedRequests));
+    setDeclineReason((prev) => ({ ...prev, [id]: '' }));
   };
 
   const statusColor = (status) => {
     switch (status) {
-      case 'Approved':
-        return '#28a745'; // green
-      case 'Declined':
-        return '#dc3545'; // red
+      case 'Approved': return '#28a745';
+      case 'Declined': return '#dc3545';
       case 'Pending':
-      default:
-        return '#ffc107'; // yellow
+      default: return '#ffc107';
     }
   };
 
@@ -58,7 +58,7 @@ const ManagerDashboard = () => {
                 <th>Reason</th>
                 <th>Status</th>
                 <th>Manager</th>
-                <th>Actions</th>
+                <th>Decline Reason</th>
               </tr>
             </thead>
             <tbody>
@@ -71,6 +71,7 @@ const ManagerDashboard = () => {
                     {request.status}
                   </td>
                   <td>{request.managerName || '—'}</td>
+                  <td>{request.status === 'Declined' ? request.declineReason : '—'}</td>
                   <td>
                     {request.status === 'Pending' ? (
                       <div style={styles.buttonGroup}>
@@ -80,12 +81,28 @@ const ManagerDashboard = () => {
                         >
                           ✅ Approve
                         </button>
-                        <button
-                          style={{ ...styles.button, backgroundColor: '#dc3545' }}
-                          onClick={() => updateRequestStatus(request.id, 'Declined')}
-                        >
-                          ❌ Decline
-                        </button>
+                        <div>
+                          <input
+                            type="text"
+                            placeholder="Reason for decline"
+                            value={declineReason[request.id] || ''}
+                            onChange={(e) =>
+                              setDeclineReason((prev) => ({
+                                ...prev,
+                                [request.id]: e.target.value
+                              }))
+                            }
+                            style={styles.input}
+                          />
+                          <button
+                            style={{ ...styles.button, backgroundColor: '#dc3545', marginTop: '0.3rem' }}
+                            onClick={() =>
+                              updateRequestStatus(request.id, 'Declined', declineReason[request.id] || '')
+                            }
+                          >
+                            ❌ Decline
+                          </button>
+                        </div>
                       </div>
                     ) : (
                       <span style={{ color: '#888' }}>—</span>
@@ -120,16 +137,27 @@ const styles = {
   },
   buttonGroup: {
     display: 'flex',
-    gap: '0.5rem',
+    flexDirection: 'column',
+    gap: '0.3rem',
   },
   button: {
-    padding: '0.5rem 1rem',
+    padding: '0.4rem 0.8rem',
     color: '#fff',
     border: 'none',
     borderRadius: '4px',
     cursor: 'pointer',
+    fontSize: '0.9rem',
+  },
+  input: {
+    padding: '0.4rem',
+    border: '1px solid #ccc',
+    borderRadius: '4px',
+    width: '100%',
+    fontSize: '0.9rem',
+    marginTop: '0.3rem',
   },
 };
 
 export default ManagerDashboard;
+
 
