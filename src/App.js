@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import Landing from './components/Landing';
+import LandingPage from './components/LandingPage'; // ✅ Fixed: Correct name
 import Login from './components/Login';
 import Register from './components/Register';
 import Home from './components/Home';
@@ -15,10 +15,12 @@ function App() {
   return (
     <div>
       <Routes>
-        <Route path="/" element={<Landing />} />
+        {/* Public Routes */}
+        <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        {/* Protected routes */}
+
+        {/* Protected Routes */}
         <Route path="/home" element={user ? <Home /> : <Navigate to="/login" />} />
         <Route path="/request-leave" element={user ? <RequestLeave /> : <Navigate to="/login" />} />
         <Route
@@ -26,7 +28,8 @@ function App() {
           element={user && user.role === 'Manager' ? <ManagerDashboard /> : <Navigate to="/login" />}
         />
         <Route path="/leave-status" element={user ? <LeaveStatus /> : <Navigate to="/login" />} />
-        {/* Catch-all: redirect to landing */}
+
+        {/* Catch-all Route */}
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </div>
