@@ -3,10 +3,9 @@ import { Link } from 'react-router-dom';
 import NavBar from './NavBar';
 import { AuthContext } from '../context/AuthContext';
 
-// Dynamic brand color
 const brandRed = '#a10d2f';
 
-// Helper: typewriter effect for welcome messages
+// Typewriter hook
 const useTypewriter = (texts, speed = 120, pause = 1500) => {
   const [display, setDisplay] = useState('');
   const [textIndex, setTextIndex] = useState(0);
@@ -47,20 +46,12 @@ const Home = () => {
   const [hovered, setHovered] = useState({ request: false, status: false });
 
   const welcomeMessages = user
-    ? [
-        `Hello, ${user.name}!`,
-        'Ready to manage your leave effortlessly?',
-        'Let’s get started!',
-      ]
-    : [
-        'Welcome to Capaciti Leave Tracking!',
-        'Powered by UVU Africa',
-        'Please login to begin your journey.',
-      ];
+    ? [`Hello, ${user.name}!`, 'Ready to manage your leave effortlessly?', 'Let’s get started!']
+    : ['Welcome to Capaciti Leave Tracking!', 'Powered by UVU Africa', 'Please login to begin your journey.'];
 
   const typedWelcome = useTypewriter(welcomeMessages);
 
-  // Animated pulsing circle for background
+  // Background pulse
   const PulseCircle = () => {
     const [scale, setScale] = useState(1);
 
@@ -118,12 +109,7 @@ const Home = () => {
       <NavBar />
       <section style={styles.hero}>
         <PulseCircle />
-        <h1
-          style={styles.heading}
-          aria-live="polite"
-          aria-atomic="true"
-          aria-relevant="text"
-        >
+        <h1 style={styles.heading}>
           {typedWelcome}
           <span style={styles.cursor}>|</span>
         </h1>
@@ -138,17 +124,14 @@ const Home = () => {
             style={buttonStyle(hovered.request)}
             onMouseEnter={() => setHovered((prev) => ({ ...prev, request: true }))}
             onMouseLeave={() => setHovered((prev) => ({ ...prev, request: false }))}
-            aria-label="Apply for leave"
           >
             ✍️ Apply for Leave
           </Link>
-
           <Link
             to="/leave-status"
             style={buttonStyle(hovered.status)}
             onMouseEnter={() => setHovered((prev) => ({ ...prev, status: true }))}
             onMouseLeave={() => setHovered((prev) => ({ ...prev, status: false }))}
-            aria-label="View leave status"
           >
             📊 View Leave Status
           </Link>
@@ -156,6 +139,7 @@ const Home = () => {
       </section>
 
       <footer style={styles.footer}>
+        <hr style={styles.footerLine} />
         <p>© {new Date().getFullYear()} Capaciti Leave Tracker • UVU Africa</p>
         <div style={styles.socials}>
           <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" style={styles.socialLink} aria-label="Facebook">📘</a>
@@ -168,6 +152,7 @@ const Home = () => {
   );
 };
 
+// Styles
 const styles = {
   container: {
     minHeight: '100vh',
@@ -215,12 +200,18 @@ const styles = {
     zIndex: 2,
   },
   footer: {
-    backgroundColor: brandRed,
-    color: '#fff',
+    backgroundColor: 'transparent',
+    color: '#333',
     padding: '1.5rem 2rem',
     textAlign: 'center',
     fontWeight: '600',
     fontSize: '1rem',
+  },
+  footerLine: {
+    border: 'none',
+    borderTop: '1px solid #ccc',
+    marginBottom: '1rem',
+    width: '100%',
   },
   socials: {
     marginTop: '0.7rem',
@@ -230,21 +221,21 @@ const styles = {
   },
   socialLink: {
     fontSize: '1.6rem',
-    color: '#fff',
+    color: '#333',
     textDecoration: 'none',
     transition: 'transform 0.25s ease',
     userSelect: 'none',
   },
 };
 
-// Adding blink keyframes for cursor effect in global style
+// Add blink keyframes globally
 const styleSheet = document.styleSheets[0];
-const keyframes =
-  `@keyframes blink {
+const keyframes = `
+  @keyframes blink {
     0%, 50% { opacity: 1; }
     51%, 100% { opacity: 0; }
-  }`;
-
+  }
+`;
 if (styleSheet && styleSheet.insertRule) {
   styleSheet.insertRule(keyframes, styleSheet.cssRules.length);
 }

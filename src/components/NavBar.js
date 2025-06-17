@@ -13,11 +13,11 @@ const NavBar = () => {
   };
 
   return (
-    <nav style={styles.navbar}>
-      {/* Logo on the left */}
-      <div style={styles.logoContainer}>
-        <img src={logo} alt="UVU Africa" style={styles.logo} />
-      </div>
+  <nav style={styles.navbar}>
+    {/* Logo replaced with text "CAPACITI" */}
+    <div style={styles.logoContainer}>
+      <h1 style={styles.logoText}>CAPACITI</h1>
+    </div>
 
       {/* Navigation Links */}
       <div style={styles.navLinks}>
