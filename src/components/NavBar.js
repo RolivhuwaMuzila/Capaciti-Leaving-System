@@ -1,81 +1,171 @@
-import React, { useContext } from 'react';
+import React, { useState, useContext } from 'react';
+import { Home, FileText, BarChart3, Calendar, LogOut } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
-import logo from '../assets/uvu africa.png'; // Ensure logo exists
 
 const NavBar = () => {
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
+  const [hoveredLink, setHoveredLink] = useState(null);
+
+  const crimson = '#DC143C';
+  const darkCrimson = '#B91C3C';
+  const lightCrimson = '#FEF2F2';
 
   const handleLogout = () => {
-    logout();
-    navigate('/');
+    logout(); // clears user context
+    navigate('/'); // redirects to landing or login page
   };
 
-  return (
-  <nav style={styles.navbar}>
-    {/* Logo replaced with text "CAPACITI" */}
-    <div style={styles.logoContainer}>
-      <h1 style={styles.logoText}>CAPACITI</h1>
-    </div>
+  const navItems = [
+    { to: '/home', icon: Home, label: 'Home', id: 'home' },
+    { to: '/request-leave', icon: FileText, label: 'Request Leave', id: 'request' },
+    ...(user?.role === 'Manager'
+      ? [{ to: '/manager-dashboard', icon: BarChart3, label: 'Dashboard', id: 'dashboard' }]
+      : []),
+    ...(user?.role === 'Employee'
+      ? [{ to: '/leave-status', icon: Calendar, label: 'Leave Status', id: 'status' }]
+      : []),
+  ];
 
-      {/* Navigation Links */}
-      <div style={styles.navLinks}>
-        <Link style={styles.link} to="/home">🏠 Home</Link>
-        <Link style={styles.link} to="/request-leave">📝 Request Leave</Link>
-        {user?.role === 'Manager' && (
-          <Link style={styles.link} to="/manager-dashboard">📊 Dashboard</Link>
-        )}
-        {user?.role === 'Employee' && (
-          <Link style={styles.link} to="/leave-status">📅 Leave Status</Link>
-        )}
+  const linkStyle = (isHovered) => ({
+    color: isHovered ? crimson : '#374151',
+    textDecoration: 'none',
+    fontWeight: '600',
+    fontSize: '0.95rem',
+    padding: '0.75rem 1.25rem',
+    borderRadius: '12px',
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.6rem',
+    position: 'relative',
+    backgroundColor: isHovered ? lightCrimson : 'transparent',
+    transform: isHovered ? 'translateY(-1px)' : 'translateY(0)',
+    boxShadow: isHovered ? `0 4px 12px ${crimson}20` : 'none',
+  });
+
+  const logoutButtonStyle = (isHovered) => ({
+    background: isHovered
+      ? `linear-gradient(135deg, ${crimson} 0%, ${darkCrimson} 100%)`
+      : 'white',
+    border: `2px solid ${crimson}`,
+    color: isHovered ? 'white' : crimson,
+    padding: '0.7rem 1.4rem',
+    borderRadius: '12px',
+    cursor: 'pointer',
+    fontWeight: '600',
+    fontSize: '0.9rem',
+    transition: 'all 0.3s ease',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.6rem',
+    transform: isHovered ? 'translateY(-2px) scale(1.02)' : 'translateY(0) scale(1)',
+    boxShadow: isHovered
+      ? `0 6px 20px ${crimson}30`
+      : `0 2px 8px ${crimson}15`,
+  });
+
+  return (
+    <nav style={{
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      background: 'white',
+      padding: '1.2rem 2.5rem',
+      boxShadow: `0 2px 20px rgba(220, 20, 60, 0.1)`,
+      position: 'sticky',
+      top: 0,
+      zIndex: 1000,
+      borderBottom: `3px solid ${lightCrimson}`,
+      backdropFilter: 'blur(10px)',
+    }}>
+      {/* Logo */}
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+        <h1 style={{
+          fontSize: '2rem',
+          fontWeight: '800',
+          margin: 0,
+          letterSpacing: '1px',
+          background: `linear-gradient(135deg, ${crimson}, ${darkCrimson})`,
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          backgroundClip: 'text',
+        }}>
+          CAPACITI
+        </h1>
+        <div style={{
+          fontSize: '0.8rem',
+          marginTop: '-2px',
+          letterSpacing: '0.5px',
+          fontWeight: '500',
+          color: '#6B7280',
+        }}>
+          Leave Management
+        </div>
+      </div>
+
+      {/* Nav Links */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        {navItems.map(({ id, to, icon: Icon, label }) => (
+          <Link
+            key={id}
+            to={to}
+            style={linkStyle(hoveredLink === id)}
+            onMouseEnter={() => setHoveredLink(id)}
+            onMouseLeave={() => setHoveredLink(null)}
+          >
+            <Icon size={18} strokeWidth={2.5} />
+            {label}
+          </Link>
+        ))}
+
         {user && (
-          <button onClick={handleLogout} style={styles.logoutBtn}>🚪 Logout</button>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '1.5rem',
+            marginLeft: '1.5rem',
+            paddingLeft: '1.5rem',
+            borderLeft: `1px solid ${lightCrimson}`,
+          }}>
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'flex-end',
+            }}>
+              <span style={{
+                fontSize: '0.9rem',
+                fontWeight: '600',
+                color: '#374151',
+              }}>
+                Welcome, {user.name || user.email}!
+              </span>
+              <span style={{
+                fontSize: '0.75rem',
+                color: crimson,
+                fontWeight: '500',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+              }}>
+                {user.role}
+              </span>
+            </div>
+
+            <button
+              onClick={handleLogout}
+              style={logoutButtonStyle(hoveredLink === 'logout')}
+              onMouseEnter={() => setHoveredLink('logout')}
+              onMouseLeave={() => setHoveredLink(null)}
+            >
+              <LogOut size={16} strokeWidth={2.5} />
+              Logout
+            </button>
+          </div>
         )}
       </div>
     </nav>
   );
-};
-
-const styles = {
-  navbar: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: '#a10d2f', // teal green
-    padding: '0.8rem 2rem',
-    boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
-    color: '#fff',
-  },
-  logoContainer: {
-    display: 'flex',
-    alignItems: 'center',
-  },
-  logo: {
-    height: '40px',
-    width: 'auto',
-  },
-  navLinks: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '1.2rem',
-  },
-  link: {
-    color: '#ffffff',
-    textDecoration: 'none',
-    fontWeight: '500',
-    transition: 'color 0.3s ease',
-  },
-  logoutBtn: {
-    backgroundColor: '#004d40',
-    border: 'none',
-    color: '#fff',
-    padding: '0.4rem 1rem',
-    borderRadius: '4px',
-    cursor: 'pointer',
-    fontWeight: '500',
-    transition: 'background-color 0.3s ease',
-  },
 };
 
 export default NavBar;

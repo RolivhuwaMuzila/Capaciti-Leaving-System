@@ -45,48 +45,52 @@ const LeaveStatus = () => {
   };
 
   return (
-    <div>
+    <div style={styles.pageWrapper}>
       <NavBar />
       <div style={styles.container}>
         <h2 style={styles.title}>📋 My Leave Requests</h2>
 
         {myLeaves.length === 0 ? (
-          <p style={styles.noData}>🚫 No leave requests submitted yet.</p>
+          <div style={styles.noDataContainer}>
+            <p style={styles.noData}>🚫 No leave requests submitted yet.</p>
+          </div>
         ) : (
-          <table style={styles.table}>
-            <thead>
-              <tr>
-                <th>📌 Type</th>
-                <th>📅 From</th>
-                <th>📅 Until</th>
-                <th>📝 Reason</th>
-                <th>⏳ Status</th>
-                <th>👨‍💼 Manager</th>
-                <th>📊 Balance Left</th> {/* 🆕 new column */}
-              </tr>
-            </thead>
-            <tbody>
-              {myLeaves.map((req) => (
-                <tr key={req.id}>
-                  <td>{req.leaveType}</td>
-                  <td>{req.dateFrom}</td>
-                  <td>{req.dateUntil}</td>
-                  <td>{req.reason}</td>
-                  <td style={{ color: getStatusColor(req.status), fontWeight: 'bold' }}>
-                    {req.status}
-                  </td>
-                  <td>{req.managerName || 'Pending Assignment'}</td>
-                  <td>
-                    {req.status.toLowerCase() === 'approved' && leaveAllocations[req.leaveType] !== null
-                      ? getRemainingForType(req.leaveType)
-                      : leaveAllocations[req.leaveType] === null
-                        ? 'Unlimited'
-                        : '--'}
-                  </td>
+          <div style={styles.tableWrapper}>
+            <table style={styles.table}>
+              <thead>
+                <tr style={styles.headerRow}>
+                  <th style={styles.th}>📌 Type</th>
+                  <th style={styles.th}>📅 From</th>
+                  <th style={styles.th}>📅 Until</th>
+                  <th style={styles.th}>📝 Reason</th>
+                  <th style={styles.th}>⏳ Status</th>
+                  <th style={styles.th}>👨‍💼 Manager</th>
+                  <th style={styles.th}>📊 Balance Left</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {myLeaves.map((req, index) => (
+                  <tr key={req.id} style={index % 2 === 0 ? styles.evenRow : styles.oddRow}>
+                    <td style={styles.td}>{req.leaveType}</td>
+                    <td style={styles.td}>{req.dateFrom}</td>
+                    <td style={styles.td}>{req.dateUntil}</td>
+                    <td style={styles.td}>{req.reason}</td>
+                    <td style={{...styles.td, color: getStatusColor(req.status), fontWeight: 'bold'}}>
+                      {req.status}
+                    </td>
+                    <td style={styles.td}>{req.managerName || 'Pending Assignment'}</td>
+                    <td style={styles.td}>
+                      {req.status.toLowerCase() === 'approved' && leaveAllocations[req.leaveType] !== null
+                        ? getRemainingForType(req.leaveType)
+                        : leaveAllocations[req.leaveType] === null
+                          ? 'Unlimited'
+                          : '--'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </div>
@@ -96,48 +100,92 @@ const LeaveStatus = () => {
 const getStatusColor = (status) => {
   switch (status.toLowerCase()) {
     case 'approved':
-      return 'green';
+      return '#28a745'; // Green
     case 'declined':
-      return 'red';
+      return '#dc143c'; // Crimson
     case 'pending':
     default:
-      return 'orange';
+      return '#ff8c00'; // Orange
   }
 };
 
 const styles = {
+  pageWrapper: {
+    minHeight: '100vh',
+    backgroundColor: '#ffffff',
+    paddingBottom: '2rem',
+  },
   container: {
-    maxWidth: '1000px',
+    maxWidth: '1200px',
     margin: '2rem auto',
-    padding: '1rem 2rem',
-    background: '#fdfdfd',
-    borderRadius: '10px',
-    boxShadow: '0 4px 10px rgba(0,0,0,0.08)',
+    padding: '2rem',
+    background: '#ffffff',
+    borderRadius: '12px',
+    boxShadow: '0 8px 24px rgba(220, 20, 60, 0.1)',
+    border: '1px solid rgba(220, 20, 60, 0.1)',
   },
   title: {
     textAlign: 'center',
-    marginBottom: '1.5rem',
-    color: '#2c3e50',
+    marginBottom: '2rem',
+    color: '#dc143c',
+    fontSize: '2rem',
+    fontWeight: '600',
+    textShadow: '0 2px 4px rgba(220, 20, 60, 0.1)',
+  },
+  noDataContainer: {
+    textAlign: 'center',
+    padding: '3rem',
+    backgroundColor: '#fafafa',
+    borderRadius: '8px',
+    border: '2px dashed rgba(220, 20, 60, 0.2)',
   },
   noData: {
-    textAlign: 'center',
-    color: '#555',
+    color: '#666',
     fontStyle: 'italic',
+    fontSize: '1.1rem',
+    margin: 0,
+  },
+  tableWrapper: {
+    overflowX: 'auto',
+    borderRadius: '8px',
+    boxShadow: '0 4px 12px rgba(220, 20, 60, 0.05)',
+    border: '1px solid rgba(220, 20, 60, 0.1)',
   },
   table: {
     width: '100%',
     borderCollapse: 'collapse',
     textAlign: 'left',
+    backgroundColor: '#ffffff',
+  },
+  headerRow: {
+    backgroundColor: '#dc143c',
   },
   th: {
-    backgroundColor: '#f2f2f2',
-    padding: '12px',
-    borderBottom: '1px solid #ddd',
+    backgroundColor: '#dc143c',
+    color: '#ffffff',
+    padding: '16px 12px',
+    fontWeight: '600',
+    fontSize: '0.9rem',
+    textTransform: 'uppercase',
+    letterSpacing: '0.5px',
+    borderBottom: '2px solid rgba(255, 255, 255, 0.2)',
+    position: 'sticky',
+    top: 0,
+    zIndex: 10,
+  },
+  evenRow: {
+    backgroundColor: '#ffffff',
+  },
+  oddRow: {
+    backgroundColor: '#fafafa',
   },
   td: {
-    padding: '10px',
-    borderBottom: '1px solid #eee',
-  }
+    padding: '14px 12px',
+    borderBottom: '1px solid rgba(220, 20, 60, 0.1)',
+    color: '#333',
+    fontSize: '0.9rem',
+    transition: 'background-color 0.2s ease',
+  },
 };
 
 export default LeaveStatus;

@@ -11,11 +11,11 @@ const LandingPage = () => {
       {/* Centered Heading */}
       <div style={styles.headerContainer}>
         <h1 style={styles.centerHeading}>
-          <span style={{ color: '#000000' }}>Uvu</span>{' '}
-          <span style={{ color: brandRed }}>Africa</span>{' '}
-          <span style={{ color: '#000000' }}>Leave</span>{' '}
-          <span style={{ color: brandRed }}>Request</span>{' '}
-          <span style={{ color: '#000000' }}>System</span>
+          <span style={{ color: 'black' }}>Uvu</span>{' '}
+          <span style={{ color: crimson }}>Africa</span>{' '}
+          <span style={{ color: 'black' }}>Leave</span>{' '}
+          <span style={{ color: crimson }}>Request</span>{' '}
+          <span style={{ color: 'black' }}>System</span>
         </h1>
       </div>
 
@@ -159,7 +159,7 @@ const LandingPage = () => {
 
 const styles = {
   wrapper: {
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#FFFFFF',
     minHeight: '100vh',
     fontFamily: 'Segoe UI, sans-serif',
     position: 'relative',
@@ -193,13 +193,13 @@ const styles = {
     fontSize: 48,
     fontWeight: '900',
     marginBottom: 12,
-    color: brandRed,
+    color: crimson,
     lineHeight: 1.1,
   },
   subLogo: {
     fontSize: 20,
     fontWeight: '600',
-    color: brandRed,
+    color: crimson,
   },
   tagline: {
     fontSize: 20,
@@ -223,7 +223,7 @@ const styles = {
     gap: 16,
   },
   primaryBtn: {
-    backgroundColor: brandRed,
+    backgroundColor: crimson,
     color: '#fff',
     padding: '0.9rem 2rem',
     borderRadius: 30,

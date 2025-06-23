@@ -2,6 +2,107 @@ import React, { useState, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 
+const styles = {
+  container: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '100vh',
+    backgroundColor: '#FFFFFF',
+    fontFamily: 'Segoe UI, sans-serif',
+    color: '#333',
+  },
+  card: {
+    backgroundColor: '#fff',
+    padding: '2.5rem',
+    borderRadius: '20px',
+    boxShadow: '0 0 30px rgba(220, 20, 60, 0.1)',
+    width: '100%',
+    maxWidth: '450px',
+    textAlign: 'center',
+  },
+  heading: {
+    fontSize: '1.8rem',
+    fontWeight: 'bold',
+    marginBottom: '1.2rem',
+    background: 'linear-gradient(90deg, #dc143c, #a80028)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+  },
+  form: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '1rem',
+    marginTop: '1rem',
+  },
+  input: {
+    width: '100%',
+    padding: '0.75rem',
+    background: '#fff',
+    border: '1px solid #ccc',
+    borderRadius: '6px',
+    color: '#333',
+    fontSize: '1rem',
+    outline: 'none',
+    transition: 'border-color 0.3s',
+  },
+  inputFocus: {
+    borderColor: '#dc143c',
+    boxShadow: '0 0 0 3px rgba(220, 20, 60, 0.1)',
+  },
+  select: {
+    backgroundColor: '#fff',
+    color: '#333',
+    border: '1px solid #ccc',
+    padding: '0.75rem',
+    borderRadius: '6px',
+    fontSize: '1rem',
+    outline: 'none',
+    appearance: 'none',
+  },
+  button: {
+    backgroundColor: '#dc143c',
+    color: '#fff',
+    padding: '0.9rem',
+    borderRadius: '10px',
+    border: 'none',
+    fontWeight: 'bold',
+    fontSize: '1rem',
+    cursor: 'pointer',
+    marginTop: '1.2rem',
+    transition: 'background-color 0.3s',
+  },
+  buttonHover: {
+    backgroundColor: '#a80028',
+  },
+  error: {
+    color: '#dc143c',
+    fontSize: '0.9rem',
+    marginTop: '-0.5rem',
+    marginBottom: '0.5rem',
+    textAlign: 'left',
+  },
+  passwordRequirements: {
+    fontSize: '0.85rem',
+    color: '#777',
+    textAlign: 'left',
+    marginTop: '-0.5rem',
+    marginBottom: '0.5rem',
+  },
+  loginText: {
+    marginTop: '1.5rem',
+    fontSize: '0.9rem',
+    color: '#666',
+  },
+  link: {
+    color: '#dc143c',
+    marginLeft: '0.3rem',
+    textDecoration: 'none',
+    cursor: 'pointer',
+    fontWeight: '500',
+  },
+};
+
 const Register = () => {
   const { register } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -11,16 +112,18 @@ const Register = () => {
     password: '',
     name: '',
     surname: '',
-    role: 'Employee'
+    role: 'Employee',
   });
+
   const [error, setError] = useState('');
+  const [focusedInput, setFocusedInput] = useState('');
+  const [hover, setHover] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const validatePassword = (password) => {
-    // Password must contain: 1 uppercase, 1 lowercase, 1 number, 1 special char (*, _, &, @, #), and be at least 8 characters
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[*_&@#])[A-Za-z\d*_&@#]{8,}$/;
     return passwordRegex.test(password);
   };
@@ -37,7 +140,7 @@ const Register = () => {
 
     const result = register(formData);
     if (result.success) {
-      navigate('/login');
+      navigate('/login'); // ✅ redirect to login
     } else {
       setError(result.message);
     }
@@ -45,10 +148,11 @@ const Register = () => {
 
   return (
     <div style={styles.container}>
-      <div style={styles.formContainer}>
-        <h2 style={styles.heading}>Create an Account</h2>
-        {error && <p style={styles.error}>{error}</p>}
-        <form onSubmit={handleSubmit} style={styles.form}>
+      <form onSubmit={handleSubmit} style={styles.card}>
+        <div style={styles.heading}>Create an Account</div>
+        {error && <div style={styles.error}>{error}</div>}
+
+        <div style={styles.form}>
           <input
             type="text"
             name="username"
@@ -56,8 +160,14 @@ const Register = () => {
             value={formData.username}
             onChange={handleChange}
             required
-            style={styles.input}
+            style={{
+              ...styles.input,
+              ...(focusedInput === 'username' ? styles.inputFocus : {}),
+            }}
+            onFocus={() => setFocusedInput('username')}
+            onBlur={() => setFocusedInput('')}
           />
+
           <input
             type="password"
             name="password"
@@ -65,11 +175,18 @@ const Register = () => {
             value={formData.password}
             onChange={handleChange}
             required
-            style={styles.input}
+            style={{
+              ...styles.input,
+              ...(focusedInput === 'password' ? styles.inputFocus : {}),
+            }}
+            onFocus={() => setFocusedInput('password')}
+            onBlur={() => setFocusedInput('')}
           />
+
           <p style={styles.passwordRequirements}>
-            Password must be at least 8 characters long, include one uppercase letter, one lowercase letter, one number, and one special character (*, _, &, @, #).
+            Password must be at least 8 characters, include uppercase, lowercase, number, and one special character (*, _, &, @, #).
           </p>
+
           <input
             type="text"
             name="name"
@@ -77,8 +194,14 @@ const Register = () => {
             value={formData.name}
             onChange={handleChange}
             required
-            style={styles.input}
+            style={{
+              ...styles.input,
+              ...(focusedInput === 'name' ? styles.inputFocus : {}),
+            }}
+            onFocus={() => setFocusedInput('name')}
+            onBlur={() => setFocusedInput('')}
           />
+
           <input
             type="text"
             name="surname"
@@ -86,8 +209,14 @@ const Register = () => {
             value={formData.surname}
             onChange={handleChange}
             required
-            style={styles.input}
+            style={{
+              ...styles.input,
+              ...(focusedInput === 'surname' ? styles.inputFocus : {}),
+            }}
+            onFocus={() => setFocusedInput('surname')}
+            onBlur={() => setFocusedInput('')}
           />
+
           <select
             name="role"
             value={formData.role}
@@ -97,88 +226,27 @@ const Register = () => {
             <option value="Employee">Employee</option>
             <option value="Manager">Manager</option>
           </select>
-          <button type="submit" style={styles.button}>Register</button>
-        </form>
-        <p style={styles.loginText}>
-          Already have an account? <Link to="/login" style={styles.link}>Login Here</Link>
-        </p>
-      </div>
+
+          <button
+            type="submit"
+            style={{
+              ...styles.button,
+              ...(hover ? styles.buttonHover : {}),
+            }}
+            onMouseEnter={() => setHover(true)}
+            onMouseLeave={() => setHover(false)}
+          >
+            Register
+          </button>
+        </div>
+
+        <div style={styles.loginText}>
+          Already have an account?
+          <Link to="/login" style={styles.link}>Login here</Link>
+        </div>
+      </form>
     </div>
   );
 };
 
-const styles = {
-  container: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: '100vh',
-    backgroundColor: '#f4f4f4',
-  },
-  formContainer: {
-    backgroundColor: '#ffffff',
-    padding: '2rem 3rem',
-    borderRadius: '8px',
-    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-    width: '100%',
-    maxWidth: '450px',
-    textAlign: 'center',
-  },
-  heading: {
-    fontSize: '2rem',
-    color: '#333',
-    marginBottom: '1.5rem',
-  },
-  form: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '1.2rem',
-  },
-  input: {
-    padding: '0.8rem',
-    border: '1px solid #ccc',
-    borderRadius: '4px',
-    fontSize: '1rem',
-  },
-  select: {
-    padding: '0.8rem',
-    border: '1px solid #ccc',
-    borderRadius: '4px',
-    fontSize: '1rem',
-  },
-  button: {
-    backgroundColor: '#a10d2f',
-    color: '#fff',
-    padding: '0.8rem',
-    borderRadius: '4px',
-    border: 'none',
-    fontSize: '1.1rem',
-    fontWeight: '600',
-    cursor: 'pointer',
-    transition: 'background 0.3s',
-  },
-  error: {
-    color: 'red',
-    fontSize: '0.9rem',
-    marginBottom: '1rem',
-  },
-  passwordRequirements: {
-    fontSize: '0.9rem',
-    color: '#555',
-    marginBottom: '1rem',
-    textAlign: 'left',
-    marginTop: '-0.5rem',
-  },
-  loginText: {
-    fontSize: '1rem',
-    color: '#555',
-  },
-  link: {
-    color: '#a10d2f',
-    textDecoration: 'none',
-    fontWeight: '600',
-  },
-};
-
 export default Register;
-

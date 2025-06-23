@@ -31,15 +31,15 @@ const ManagerDashboard = () => {
 
   const statusColor = (status) => {
     switch (status) {
-      case 'Approved': return '#28a745';
-      case 'Declined': return '#dc3545';
+      case 'Approved': return '#DC143C';
+      case 'Declined': return '#8B0000';
       case 'Pending':
-      default: return '#ffc107';
+      default: return '#B22222';
     }
   };
 
   return (
-    <div>
+    <div style={styles.pageContainer}>
       <NavBar />
       <div style={styles.container}>
         <h2 style={styles.heading}>📋 Manager Dashboard</h2>
@@ -48,70 +48,75 @@ const ManagerDashboard = () => {
         </p>
 
         {leaveRequests.length === 0 ? (
-          <p style={{ marginTop: '1rem' }}>🎉 No leave requests available at the moment.</p>
+          <div style={styles.noRequestsContainer}>
+            <p style={styles.noRequestsText}>🎉 No leave requests available at the moment.</p>
+          </div>
         ) : (
-          <table style={styles.table}>
-            <thead>
-              <tr>
-                <th>Employee</th>
-                <th>Leave Type</th>
-                <th>Reason</th>
-                <th>Status</th>
-                <th>Manager</th>
-                <th>Decline Reason</th>
-              </tr>
-            </thead>
-            <tbody>
-              {leaveRequests.map((request) => (
-                <tr key={request.id}>
-                  <td>{request.name} {request.surname}</td>
-                  <td>{request.leaveType}</td>
-                  <td>{request.reason}</td>
-                  <td style={{ color: statusColor(request.status), fontWeight: 'bold' }}>
-                    {request.status}
-                  </td>
-                  <td>{request.managerName || '—'}</td>
-                  <td>{request.status === 'Declined' ? request.declineReason : '—'}</td>
-                  <td>
-                    {request.status === 'Pending' ? (
-                      <div style={styles.buttonGroup}>
-                        <button
-                          style={{ ...styles.button, backgroundColor: '#28a745' }}
-                          onClick={() => updateRequestStatus(request.id, 'Approved')}
-                        >
-                          ✅ Approve
-                        </button>
-                        <div>
-                          <input
-                            type="text"
-                            placeholder="Reason for decline"
-                            value={declineReason[request.id] || ''}
-                            onChange={(e) =>
-                              setDeclineReason((prev) => ({
-                                ...prev,
-                                [request.id]: e.target.value
-                              }))
-                            }
-                            style={styles.input}
-                          />
-                          <button
-                            style={{ ...styles.button, backgroundColor: '#dc3545', marginTop: '0.3rem' }}
-                            onClick={() =>
-                              updateRequestStatus(request.id, 'Declined', declineReason[request.id] || '')
-                            }
-                          >
-                            ❌ Decline
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <span style={{ color: '#888' }}>—</span>
-                    )}
-                  </td>
+          <div style={styles.tableContainer}>
+            <table style={styles.table}>
+              <thead>
+                <tr style={styles.headerRow}>
+                  <th style={styles.headerCell}>Employee</th>
+                  <th style={styles.headerCell}>Leave Type</th>
+                  <th style={styles.headerCell}>Reason</th>
+                  <th style={styles.headerCell}>Status</th>
+                  <th style={styles.headerCell}>Manager</th>
+                  <th style={styles.headerCell}>Decline Reason</th>
+                  <th style={styles.headerCell}>Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {leaveRequests.map((request, index) => (
+                  <tr key={request.id} style={index % 2 === 0 ? styles.evenRow : styles.oddRow}>
+                    <td style={styles.cell}>{request.name} {request.surname}</td>
+                    <td style={styles.cell}>{request.leaveType}</td>
+                    <td style={styles.cell}>{request.reason}</td>
+                    <td style={{ ...styles.cell, color: statusColor(request.status), fontWeight: 'bold' }}>
+                      {request.status}
+                    </td>
+                    <td style={styles.cell}>{request.managerName || '—'}</td>
+                    <td style={styles.cell}>{request.status === 'Declined' ? request.declineReason : '—'}</td>
+                    <td style={styles.cell}>
+                      {request.status === 'Pending' ? (
+                        <div style={styles.buttonGroup}>
+                          <button
+                            style={styles.approveButton}
+                            onClick={() => updateRequestStatus(request.id, 'Approved')}
+                          >
+                            ✅ Approve
+                          </button>
+                          <div>
+                            <input
+                              type="text"
+                              placeholder="Reason for decline"
+                              value={declineReason[request.id] || ''}
+                              onChange={(e) =>
+                                setDeclineReason((prev) => ({
+                                  ...prev,
+                                  [request.id]: e.target.value
+                                }))
+                              }
+                              style={styles.input}
+                            />
+                            <button
+                              style={styles.declineButton}
+                              onClick={() =>
+                                updateRequestStatus(request.id, 'Declined', declineReason[request.id] || '')
+                              }
+                            >
+                              ❌ Decline
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <span style={{ color: '#DC143C' }}>—</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </div>
@@ -119,45 +124,122 @@ const ManagerDashboard = () => {
 };
 
 const styles = {
+  pageContainer: {
+    minHeight: '100vh',
+    backgroundColor: '#FFFFFF',
+  },
   container: {
     padding: '2rem',
+    backgroundColor: '#FFFFFF',
+    minHeight: 'calc(100vh - 80px)',
   },
   heading: {
-    color: '#2c3e50',
-    fontSize: '1.8rem',
+    color: '#DC143C',
+    fontSize: '2.2rem',
+    fontWeight: 'bold',
+    marginBottom: '0.5rem',
+    textShadow: '1px 1px 2px rgba(220, 20, 60, 0.1)',
   },
   subtext: {
-    color: '#555',
-    marginBottom: '1.5rem',
+    color: '#8B0000',
+    marginBottom: '2rem',
+    fontSize: '1.1rem',
+    padding: '1rem',
+    backgroundColor: '#FFF8F8',
+    border: '1px solid #FFE4E1',
+    borderRadius: '8px',
+  },
+  noRequestsContainer: {
+    textAlign: 'center',
+    padding: '3rem',
+    backgroundColor: '#FFF8F8',
+    borderRadius: '12px',
+    border: '2px solid #FFE4E1',
+  },
+  noRequestsText: {
+    fontSize: '1.2rem',
+    color: '#DC143C',
+    fontWeight: '500',
+  },
+  tableContainer: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: '12px',
+    overflow: 'hidden',
+    boxShadow: '0 4px 20px rgba(220, 20, 60, 0.1)',
+    border: '2px solid #FFE4E1',
   },
   table: {
     width: '100%',
     borderCollapse: 'collapse',
-    boxShadow: '0 0 10px rgba(0,0,0,0.1)',
+    backgroundColor: '#FFFFFF',
+  },
+  headerRow: {
+    backgroundColor: '#DC143C',
+  },
+  headerCell: {
+    padding: '1rem',
+    textAlign: 'left',
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    fontSize: '0.95rem',
+    letterSpacing: '0.5px',
+    borderBottom: '2px solid #B22222',
+  },
+  evenRow: {
+    backgroundColor: '#FFFFFF',
+  },
+  oddRow: {
+    backgroundColor: '#FFF8F8',
+  },
+  cell: {
+    padding: '1rem',
+    borderBottom: '1px solid #FFE4E1',
+    color: '#8B0000',
+    fontSize: '0.9rem',
+    verticalAlign: 'top',
   },
   buttonGroup: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '0.3rem',
+    gap: '0.5rem',
+    minWidth: '180px',
   },
-  button: {
-    padding: '0.4rem 0.8rem',
-    color: '#fff',
+  approveButton: {
+    padding: '0.6rem 1rem',
+    color: '#FFFFFF',
+    backgroundColor: '#DC143C',
     border: 'none',
-    borderRadius: '4px',
+    borderRadius: '6px',
     cursor: 'pointer',
     fontSize: '0.9rem',
+    fontWeight: '500',
+    transition: 'all 0.2s ease',
+    boxShadow: '0 2px 4px rgba(220, 20, 60, 0.2)',
+  },
+  declineButton: {
+    padding: '0.6rem 1rem',
+    color: '#FFFFFF',
+    backgroundColor: '#8B0000',
+    border: 'none',
+    borderRadius: '6px',
+    cursor: 'pointer',
+    fontSize: '0.9rem',
+    fontWeight: '500',
+    marginTop: '0.5rem',
+    transition: 'all 0.2s ease',
+    boxShadow: '0 2px 4px rgba(139, 0, 0, 0.2)',
   },
   input: {
-    padding: '0.4rem',
-    border: '1px solid #ccc',
-    borderRadius: '4px',
+    padding: '0.6rem',
+    border: '2px solid #FFE4E1',
+    borderRadius: '6px',
     width: '100%',
     fontSize: '0.9rem',
-    marginTop: '0.3rem',
+    backgroundColor: '#FFFFFF',
+    color: '#8B0000',
+    transition: 'border-color 0.2s ease',
+    outline: 'none',
   },
 };
 
 export default ManagerDashboard;
-
-

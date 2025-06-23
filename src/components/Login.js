@@ -1,6 +1,99 @@
 import React, { useState, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
-import { useNavigate, Link } from 'react-router-dom';
+
+const styles = {
+  container: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '100vh',
+    background: 'radial-gradient(circle at left, #ffffff, #f5f5f5)',
+    fontFamily: 'Segoe UI, sans-serif',
+    color: '#333',
+  },
+  card: {
+    backgroundColor: '#ffffff',
+    padding: '2rem',
+    borderRadius: '20px',
+    boxShadow: '0 0 30px rgba(220, 20, 60, 0.2)',
+    width: '100%',
+    maxWidth: '400px',
+    textAlign: 'center',
+  },
+  icon: {
+    backgroundColor: '#dc143c',
+    width: '50px',
+    height: '50px',
+    borderRadius: '12px',
+    margin: '0 auto 1rem',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    boxShadow: '0 0 15px rgba(220, 20, 60, 0.4)',
+  },
+  iconInner: {
+    width: '20px',
+    height: '20px',
+    backgroundColor: '#fff',
+    borderRadius: '4px',
+  },
+  heading: {
+    fontSize: '1.8rem',
+    fontWeight: 'bold',
+    marginBottom: '0.5rem',
+    background: 'linear-gradient(90deg, #dc143c, #b91c3c)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+  },
+  subtext: {
+    marginBottom: '2rem',
+    color: '#666',
+    fontSize: '0.95rem',
+  },
+  input: {
+    width: '100%',
+    padding: '0.75rem',
+    marginBottom: '1.2rem',
+    background: 'transparent',
+    border: 'none',
+    borderBottom: '1px solid #ccc',
+    color: '#333',
+    fontSize: '1rem',
+    outline: 'none',
+    transition: 'border-color 0.3s',
+  },
+  inputFocus: {
+    borderBottom: '1px solid #dc143c',
+  },
+  button: {
+    width: '100%',
+    padding: '0.8rem',
+    backgroundColor: '#dc143c',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '10px',
+    fontWeight: 'bold',
+    fontSize: '1rem',
+    cursor: 'pointer',
+    marginTop: '1rem',
+    transition: 'background-color 0.3s',
+  },
+  buttonHover: {
+    backgroundColor: '#b91c3c',
+  },
+  bottomText: {
+    marginTop: '1.5rem',
+    fontSize: '0.9rem',
+    color: '#666',
+  },
+  link: {
+    color: '#dc143c',
+    marginLeft: '0.3rem',
+    textDecoration: 'none',
+    cursor: 'pointer',
+  }
+};
 
 const Login = () => {
   const { login } = useContext(AuthContext);
@@ -9,11 +102,14 @@ const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [focusedInput, setFocusedInput] = useState('');
+  const [hover, setHover] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     const result = login(username, password);
     if (result.success) {
+      setError('');
       navigate('/home');
     } else {
       setError(result.message);
@@ -22,98 +118,58 @@ const Login = () => {
 
   return (
     <div style={styles.container}>
-      <div style={styles.formContainer}>
-        <h2 style={styles.heading}>Login</h2>
-        {error && <p style={styles.error}>{error}</p>}
-        <form onSubmit={handleSubmit} style={styles.form}>
-          <input 
-            type="text"
-            placeholder="Username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-            style={styles.input} 
-          />
-          <input 
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            style={styles.input} 
-          />
-          <button type="submit" style={styles.button}>Login</button>
-        </form>
-        <p style={styles.registerText}>
-          Don't have an account? <Link to="/register" style={styles.link}>Register Here</Link>
-        </p>
-      </div>
+      <form onSubmit={handleSubmit} style={styles.card}>
+        <div style={styles.icon}><div style={styles.iconInner} /></div>
+        <div style={styles.heading}>Welcome Back</div>
+        <div style={styles.subtext}>Sign in to your account</div>
+
+        <input
+          type="text"
+          placeholder="Username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          style={{
+            ...styles.input,
+            ...(focusedInput === 'username' ? styles.inputFocus : {})
+          }}
+          onFocus={() => setFocusedInput('username')}
+          onBlur={() => setFocusedInput('')}
+        />
+
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          style={{
+            ...styles.input,
+            ...(focusedInput === 'password' ? styles.inputFocus : {})
+          }}
+          onFocus={() => setFocusedInput('password')}
+          onBlur={() => setFocusedInput('')}
+        />
+
+        {error && <div style={{ color: '#dc143c', marginBottom: '1rem' }}>{error}</div>}
+
+        <button
+          type="submit"
+          style={{
+            ...styles.button,
+            ...(hover ? styles.buttonHover : {})
+          }}
+          onMouseEnter={() => setHover(true)}
+          onMouseLeave={() => setHover(false)}
+        >
+          SIGN IN
+        </button>
+
+        <div style={styles.bottomText}>
+          Don't have an account?
+          <span style={styles.link} onClick={() => navigate('/register')}>Create one here</span>
+        </div>
+      </form>
     </div>
   );
 };
 
-const styles = {
-  container: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: '100vh',
-    backgroundColor: '#f4f4f4',
-  },
-  formContainer: {
-    backgroundColor: '#ffffff',
-    padding: '2rem 3rem',
-    borderRadius: '8px',
-    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-    width: '100%',
-    maxWidth: '400px',
-    textAlign: 'center',
-  },
-  heading: {
-    fontSize: '2rem',
-    color: '#333',
-    marginBottom: '1.5rem',
-  },
-  form: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '1.2rem',
-  },
-  input: {
-    padding: '0.8rem',
-    border: '1px solid #ccc',
-    borderRadius: '4px',
-    fontSize: '1rem',
-  },
-  button: {
-    backgroundColor: '#a10d2f',
-    color: '#fff',
-    padding: '0.8rem',
-    borderRadius: '4px',
-    border: 'none',
-    fontSize: '1.1rem',
-    fontWeight: '600',
-    cursor: 'pointer',
-    transition: 'background 0.3s',
-  },
-  buttonHover: {
-    backgroundColor: '#e74c3c',
-  },
-  error: {
-    color: 'red',
-    fontSize: '0.9rem',
-    marginBottom: '1rem',
-  },
-  registerText: {
-    fontSize: '1rem',
-    color: '#555',
-  },
-  link: {
-    color: '#a10d2f',
-    textDecoration: 'none',
-    fontWeight: '600',
-  },
-};
-
 export default Login;
-
