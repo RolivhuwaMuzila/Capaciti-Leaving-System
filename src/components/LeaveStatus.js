@@ -5,13 +5,15 @@ import { AuthContext } from '../context/AuthContext';
 const LeaveStatus = () => {
   const { user } = useContext(AuthContext);
   const [myLeaves, setMyLeaves] = useState([]);
+  const [selectedReason, setSelectedReason] = useState('');
+  const [showModal, setShowModal] = useState(false);
 
   const leaveAllocations = {
     "Sick Leave": 20,
     "Study Leave": 5,
     "Family Responsibility": 5,
     "Annual Leave": 20,
-    "Unpaid Leave": null, // No fixed limit
+    "Unpaid Leave": null,
   };
 
   useEffect(() => {
@@ -20,7 +22,6 @@ const LeaveStatus = () => {
     setMyLeaves(filtered);
   }, [user.username]);
 
-  // 🔄 Helper to calculate leave days
   const calculateDays = (from, until) => {
     const fromDate = new Date(from);
     const untilDate = new Date(until);
@@ -28,7 +29,6 @@ const LeaveStatus = () => {
     return Math.floor(timeDiff / (1000 * 3600 * 24)) + 1;
   };
 
-  // 🧮 Helper to compute balance for a leave type
   const getRemainingForType = (type) => {
     const total = leaveAllocations[type];
     if (total === null) return 'Unlimited';
@@ -42,6 +42,16 @@ const LeaveStatus = () => {
     }, 0);
 
     return `${Math.max(total - usedDays, 0)} days left`;
+  };
+
+  const openModal = (reason) => {
+    setSelectedReason(reason || 'No reason provided');
+    setShowModal(true);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+    setSelectedReason('');
   };
 
   return (
@@ -66,6 +76,7 @@ const LeaveStatus = () => {
                   <th style={styles.th}>⏳ Status</th>
                   <th style={styles.th}>👨‍💼 Manager</th>
                   <th style={styles.th}>📊 Balance Left</th>
+                  <th style={styles.th}>❌ Decline Reason</th>
                 </tr>
               </thead>
               <tbody>
@@ -75,7 +86,7 @@ const LeaveStatus = () => {
                     <td style={styles.td}>{req.dateFrom}</td>
                     <td style={styles.td}>{req.dateUntil}</td>
                     <td style={styles.td}>{req.reason}</td>
-                    <td style={{...styles.td, color: getStatusColor(req.status), fontWeight: 'bold'}}>
+                    <td style={{ ...styles.td, color: getStatusColor(req.status), fontWeight: 'bold' }}>
                       {req.status}
                     </td>
                     <td style={styles.td}>{req.managerName || 'Pending Assignment'}</td>
@@ -86,6 +97,13 @@ const LeaveStatus = () => {
                           ? 'Unlimited'
                           : '--'}
                     </td>
+                    <td style={styles.td}>
+                      {req.status.toLowerCase() === 'declined' ? (
+                        <button style={styles.viewButton} onClick={() => openModal(req.declineReason)}>
+                          View Reason
+                        </button>
+                      ) : '—'}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -93,6 +111,17 @@ const LeaveStatus = () => {
           </div>
         )}
       </div>
+
+      {/* Modal */}
+      {showModal && (
+        <div style={styles.modalOverlay}>
+          <div style={styles.modalContent}>
+            <h3 style={styles.modalTitle}>Decline Reason</h3>
+            <p style={styles.modalText}>{selectedReason}</p>
+            <button onClick={closeModal} style={styles.modalClose}>Close</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -100,12 +129,12 @@ const LeaveStatus = () => {
 const getStatusColor = (status) => {
   switch (status.toLowerCase()) {
     case 'approved':
-      return '#28a745'; // Green
+      return '#28a745';
     case 'declined':
-      return '#dc143c'; // Crimson
+      return '#dc143c';
     case 'pending':
     default:
-      return '#ff8c00'; // Orange
+      return '#ff8c00';
   }
 };
 
@@ -185,6 +214,52 @@ const styles = {
     color: '#333',
     fontSize: '0.9rem',
     transition: 'background-color 0.2s ease',
+  },
+  viewButton: {
+    padding: '6px 12px',
+    backgroundColor: '#dc143c',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '6px',
+    cursor: 'pointer',
+    fontSize: '0.8rem',
+  },
+  modalOverlay: {
+    position: 'fixed',
+    top: 0, left: 0,
+    width: '100vw',
+    height: '100vh',
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 999,
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    padding: '2rem',
+    borderRadius: '12px',
+    maxWidth: '400px',
+    textAlign: 'center',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+  },
+  modalTitle: {
+    fontSize: '1.5rem',
+    marginBottom: '1rem',
+    color: '#dc143c',
+  },
+  modalText: {
+    fontSize: '1rem',
+    marginBottom: '1.5rem',
+    color: '#444',
+  },
+  modalClose: {
+    padding: '8px 16px',
+    backgroundColor: '#dc143c',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '6px',
+    cursor: 'pointer',
   },
 };
 
