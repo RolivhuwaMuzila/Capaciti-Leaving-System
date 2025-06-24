@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useContext } from 'react';
 import NavBar from './NavBar';
 import { AuthContext } from '../context/AuthContext';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 const LeaveStatus = () => {
   const { user } = useContext(AuthContext);
@@ -54,11 +56,51 @@ const LeaveStatus = () => {
     setSelectedReason('');
   };
 
+  const downloadPDF = () => {
+  const doc = new jsPDF();
+
+  doc.setFontSize(18);
+  doc.text('My Leave History', 14, 22);
+
+  doc.setFontSize(11);
+  doc.setTextColor(80);
+  doc.text(`Name: ${user.name} ${user.surname}`, 14, 32);
+  doc.text(`Cohort: ${user.cohort}`, 14, 38);
+  doc.text(`Email: ${user.email}`, 14, 44);
+  doc.text(`Company: Capaciti`, 14, 50);
+
+  const tableColumn = ['Type', 'From', 'Until', 'Reason', 'Status', 'Manager'];
+  const tableRows = [];
+
+  myLeaves.forEach((leave) => {
+    const rowData = [
+      leave.leaveType,
+      leave.dateFrom,
+      leave.dateUntil,
+      leave.reason,
+      leave.status,
+      leave.managerName || 'Pending',
+    ];
+    tableRows.push(rowData);
+  });
+
+  autoTable(doc, {
+    head: [tableColumn],
+    body: tableRows,
+    startY: 58,
+    theme: 'grid',
+    headStyles: { fillColor: [220, 20, 60] },
+  });
+
+  doc.save('leave-history.pdf');
+};
+
   return (
     <div style={styles.pageWrapper}>
       <NavBar />
       <div style={styles.container}>
         <h2 style={styles.title}>📋 My Leave Requests</h2>
+        <button onClick={downloadPDF} style={styles.exportButton}>Download PDF</button>
 
         {myLeaves.length === 0 ? (
           <div style={styles.noDataContainer}>
@@ -112,7 +154,6 @@ const LeaveStatus = () => {
         )}
       </div>
 
-      {/* Modal */}
       {showModal && (
         <div style={styles.modalOverlay}>
           <div style={styles.modalContent}>
@@ -128,13 +169,10 @@ const LeaveStatus = () => {
 
 const getStatusColor = (status) => {
   switch (status.toLowerCase()) {
-    case 'approved':
-      return '#28a745';
-    case 'declined':
-      return '#dc143c';
+    case 'approved': return '#28a745';
+    case 'declined': return '#dc143c';
     case 'pending':
-    default:
-      return '#ff8c00';
+    default: return '#ff8c00';
   }
 };
 
@@ -155,11 +193,20 @@ const styles = {
   },
   title: {
     textAlign: 'center',
-    marginBottom: '2rem',
+    marginBottom: '1rem',
     color: '#dc143c',
     fontSize: '2rem',
     fontWeight: '600',
-    textShadow: '0 2px 4px rgba(220, 20, 60, 0.1)',
+  },
+  exportButton: {
+    backgroundColor: '#dc143c',
+    color: '#fff',
+    padding: '10px 16px',
+    border: 'none',
+    borderRadius: '6px',
+    cursor: 'pointer',
+    fontSize: '0.9rem',
+    marginBottom: '1.5rem',
   },
   noDataContainer: {
     textAlign: 'center',
@@ -197,23 +244,14 @@ const styles = {
     fontSize: '0.9rem',
     textTransform: 'uppercase',
     letterSpacing: '0.5px',
-    borderBottom: '2px solid rgba(255, 255, 255, 0.2)',
-    position: 'sticky',
-    top: 0,
-    zIndex: 10,
   },
-  evenRow: {
-    backgroundColor: '#ffffff',
-  },
-  oddRow: {
-    backgroundColor: '#fafafa',
-  },
+  evenRow: { backgroundColor: '#ffffff' },
+  oddRow: { backgroundColor: '#fafafa' },
   td: {
     padding: '14px 12px',
     borderBottom: '1px solid rgba(220, 20, 60, 0.1)',
     color: '#333',
     fontSize: '0.9rem',
-    transition: 'background-color 0.2s ease',
   },
   viewButton: {
     padding: '6px 12px',
@@ -226,9 +264,7 @@ const styles = {
   },
   modalOverlay: {
     position: 'fixed',
-    top: 0, left: 0,
-    width: '100vw',
-    height: '100vh',
+    top: 0, left: 0, width: '100vw', height: '100vh',
     backgroundColor: 'rgba(0,0,0,0.4)',
     display: 'flex',
     justifyContent: 'center',

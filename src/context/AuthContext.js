@@ -5,7 +5,6 @@ export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
 
-  // Load user from localStorage on app start
   useEffect(() => {
     const storedUser = localStorage.getItem('currentUser');
     if (storedUser) {
@@ -22,8 +21,6 @@ export const AuthProvider = ({ children }) => {
 
     users.push(newUser);
     localStorage.setItem('users', JSON.stringify(users));
-
-    // ✅ Log them in and persist session
     setUser(newUser);
     localStorage.setItem('currentUser', JSON.stringify(newUser));
 

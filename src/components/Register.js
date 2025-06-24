@@ -112,6 +112,8 @@ const Register = () => {
     password: '',
     name: '',
     surname: '',
+    email: '',
+    cohort: 'Absa',
     role: 'Employee',
   });
 
@@ -140,7 +142,7 @@ const Register = () => {
 
     const result = register(formData);
     if (result.success) {
-      navigate('/login'); // ✅ redirect to login
+      navigate('/login');
     } else {
       setError(result.message);
     }
@@ -216,6 +218,36 @@ const Register = () => {
             onFocus={() => setFocusedInput('surname')}
             onBlur={() => setFocusedInput('')}
           />
+
+          <input
+            type="email"
+            name="email"
+            placeholder="Email"
+            value={formData.email}
+            onChange={handleChange}
+            required
+            style={{
+              ...styles.input,
+              ...(focusedInput === 'email' ? styles.inputFocus : {}),
+            }}
+            onFocus={() => setFocusedInput('email')}
+            onBlur={() => setFocusedInput('')}
+          />
+
+          <select
+            name="cohort"
+            value={formData.cohort}
+            onChange={handleChange}
+            style={styles.select}
+          >
+            <option value="Absa">Absa</option>
+            <option value="FNB">FNB</option>
+            <option value="Wimpro">Wimpro</option>
+            <option value="AI">AI</option>
+            <option value="Demand">Demand</option>
+            <option value="Dev">Dev</option>
+            <option value="BSG">BSG</option>
+          </select>
 
           <select
             name="role"
